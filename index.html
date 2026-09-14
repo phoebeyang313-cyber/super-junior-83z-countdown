@@ -856,7 +856,6 @@
 
                 <div class="memo-tools">
                     <button class="memo-tool" id="memo-notification" type="button">开启系统通知</button>
-                    <button class="memo-tool" id="memo-test-alarm" type="button">测试铃声</button>
                 </div>
 
                 <div class="memo-alert" id="memo-alert" role="alert">
@@ -1018,9 +1017,6 @@
 
         const memoNotification =
             document.getElementById("memo-notification");
-
-        const memoTestAlarm =
-            document.getElementById("memo-test-alarm");
 
         const memoStorageKey =
             "super-junior-83z-countdown-memo-list";
@@ -1255,7 +1251,6 @@
         function updateNotificationButton() {
 
             if (typeof Notification === "undefined") {
-                memoNotification.textContent = "浏览器不支持通知";
                 return;
             }
 
@@ -1279,13 +1274,6 @@
             } else {
                 memoStatus.textContent = "请允许浏览器发送通知";
             }
-        });
-
-        memoTestAlarm.addEventListener("click", async () => {
-            memoAlertText.textContent = "测试提醒：铃声正常";
-            memoAlert.classList.add("visible");
-            memoStatus.textContent = "正在测试提醒铃声";
-            await playReminderSound();
         });
 
         updateNotificationButton();
