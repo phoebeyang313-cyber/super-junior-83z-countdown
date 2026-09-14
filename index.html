@@ -366,7 +366,8 @@
         }
 
         .memo-form {
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: 8px;
         }
 
@@ -409,6 +410,33 @@
             padding: 0 13px;
         }
 
+        .memo-options {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            grid-column: 1 / -1;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 10px;
+        }
+
+        .memo-reminder-toggle,
+        .memo-check {
+            accent-color: #b56cff;
+            cursor: pointer;
+        }
+
+        .memo-time {
+            min-width: 170px;
+            padding: 5px 7px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.72);
+            background: rgba(0, 0, 0, 0.14);
+            font: inherit;
+            font-size: 10px;
+        }
+
         .memo-add:hover,
         .memo-clear:hover {
             color: #ffffff;
@@ -424,21 +452,24 @@
         }
 
         .memo-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 38px;
+            display: grid;
+            gap: 6px;
             padding: 7px 9px;
             border-radius: 9px;
             background: rgba(0, 0, 0, 0.13);
+        }
+
+        .memo-item-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
         }
 
         .memo-check {
             width: 17px;
             height: 17px;
             flex: 0 0 auto;
-            accent-color: #b56cff;
-            cursor: pointer;
         }
 
         .memo-text {
@@ -469,6 +500,16 @@
 
         .memo-delete:hover {
             color: #ffffff;
+        }
+
+        .memo-item-reminder {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding-left: 27px;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 10px;
         }
 
         .memo-actions {
@@ -613,6 +654,10 @@
                 gap: 6px;
             }
 
+            .memo-time {
+                min-width: 155px;
+            }
+
             .memo-add {
                 padding: 0 10px;
             }
@@ -749,6 +794,22 @@
                         aria-label="新增备忘录项目"
                     >
                     <button class="memo-add" type="submit">添加</button>
+                    <div class="memo-options">
+                        <label>
+                            <input
+                                class="memo-reminder-toggle"
+                                id="memo-reminder-toggle"
+                                type="checkbox"
+                            >
+                            添加提醒
+                        </label>
+                        <input
+                            class="memo-time"
+                            id="memo-reminder-time"
+                            type="datetime-local"
+                            aria-label="新增事项提醒时间"
+                        >
+                    </div>
                 </form>
 
                 <ul class="memo-list" id="memo-list" aria-live="polite"></ul>
@@ -851,6 +912,12 @@
         const memoInput =
             document.getElementById("memo-input");
 
+        const memoReminderToggle =
+            document.getElementById("memo-reminder-toggle");
+
+        const memoReminderTime =
+            document.getElementById("memo-reminder-time");
+
         const memoList =
             document.getElementById("memo-list");
 
@@ -890,7 +957,8 @@
                 localStorage.getItem(memoStorageKey);
 
             if (savedItems) {
-                memoItems = JSON.parse(savedItems);
+                const parsedItems = JSON.parse(savedItems);
+                memoItems = Array.isArray(parsedItems) ? parsedItems : [];
             } else {
                 const oldMemo =
                     localStorage.getItem("super-junior-83z-countdown-memo");
@@ -899,7 +967,9 @@
                     memoItems = [{
                         id: Date.now(),
                         text: oldMemo.trim(),
-                        completed: false
+                        completed: false,
+                        remind: false,
+                        remindAt: ""
                     }];
                 }
             }
@@ -935,6 +1005,52 @@
                 text.className = "memo-text";
                 text.textContent = item.text;
 
+                const reminderControls = document.createElement("div");
+                reminderControls.className = "memo-item-reminder";
+
+                const reminderToggle = document.createElement("input");
+                reminderToggle.className = "memo-reminder-toggle";
+                reminderToggle.type = "checkbox";
+                reminderToggle.checked = Boolean(item.remind && item.remindAt);
+                reminderToggle.setAttribute("aria-label", `提醒：${item.text}`);
+
+                const reminderLabel = document.createElement("span");
+                reminderLabel.textContent = "提醒我";
+
+                const reminderTime = document.createElement("input");
+                reminderTime.className = "memo-time";
+                reminderTime.type = "datetime-local";
+                reminderTime.value = item.remindAt || "";
+                reminderTime.setAttribute("aria-label", `提醒时间：${item.text}`);
+
+                reminderToggle.addEventListener("change", async () => {
+                    if (reminderToggle.checked && !reminderTime.value) {
+                        reminderToggle.checked = false;
+                        memoStatus.textContent = "请先选择提醒时间";
+                        reminderTime.focus();
+                        return;
+                    }
+
+                    item.remind = reminderToggle.checked;
+                    item.notified = false;
+                    await requestNotificationPermission();
+                    saveMemo();
+                });
+
+                reminderTime.addEventListener("change", async () => {
+                    item.remindAt = reminderTime.value;
+                    item.remind = Boolean(reminderTime.value && reminderToggle.checked);
+                    item.notified = false;
+                    await requestNotificationPermission();
+                    saveMemo();
+                });
+
+                reminderControls.append(
+                    reminderToggle,
+                    reminderLabel,
+                    reminderTime
+                );
+
                 const deleteButton = document.createElement("button");
                 deleteButton.className = "memo-delete";
                 deleteButton.type = "button";
@@ -949,12 +1065,59 @@
                     saveMemo();
                 });
 
-                listItem.append(checkbox, text, deleteButton);
+                const itemMain = document.createElement("div");
+                itemMain.className = "memo-item-main";
+                itemMain.append(checkbox, text, deleteButton);
+
+                listItem.append(itemMain, reminderControls);
                 memoList.appendChild(listItem);
             });
         }
 
-        memoForm.addEventListener("submit", (event) => {
+        async function requestNotificationPermission() {
+
+            if (typeof Notification === "undefined" || Notification.permission !== "default") {
+                return;
+            }
+
+            try {
+                await Notification.requestPermission();
+            } catch (error) {
+                memoStatus.textContent = "页面内提醒已开启";
+            }
+        }
+
+        function checkReminders() {
+
+            const now = Date.now();
+            let reminderTriggered = false;
+
+            memoItems.forEach((item) => {
+                const reminderTime = new Date(item.remindAt).getTime();
+
+                if (
+                    item.remind &&
+                    !item.completed &&
+                    !item.notified &&
+                    item.remindAt &&
+                    reminderTime <= now
+                ) {
+                    item.notified = true;
+                    reminderTriggered = true;
+
+                    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+                        new Notification("备忘录提醒", { body: item.text });
+                    }
+                }
+            });
+
+            if (reminderTriggered) {
+                memoStatus.textContent = "有一项备忘录需要注意";
+                saveMemo();
+            }
+        }
+
+        memoForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
             const text = memoInput.value.trim();
@@ -964,15 +1127,27 @@
                 return;
             }
 
+            if (memoReminderToggle.checked && !memoReminderTime.value) {
+                memoStatus.textContent = "请先选择提醒时间";
+                memoReminderTime.focus();
+                return;
+            }
+
             memoItems.push({
                 id: Date.now(),
                 text,
-                completed: false
+                completed: false,
+                remind: memoReminderToggle.checked,
+                remindAt: memoReminderTime.value,
+                notified: false
             });
 
             memoInput.value = "";
+            memoReminderToggle.checked = false;
+            memoReminderTime.value = "";
             renderMemo();
             saveMemo();
+            await requestNotificationPermission();
             memoInput.focus();
         });
 
@@ -984,6 +1159,8 @@
         });
 
         renderMemo();
+        checkReminders();
+        setInterval(checkReminders, 10000);
 
 
         function updateCountdown() {
