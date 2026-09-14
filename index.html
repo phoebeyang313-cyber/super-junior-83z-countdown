@@ -366,6 +366,29 @@
             font-size: 10px;
         }
 
+        .memo-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: -3px 0 12px;
+        }
+
+        .memo-tool {
+            padding: 6px 9px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 7px;
+            color: rgba(255, 255, 255, 0.65);
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            font-size: 10px;
+        }
+
+        .memo-tool:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
         .memo-alert {
             display: none;
             align-items: center;
@@ -831,6 +854,11 @@
 
                 <p class="memo-hint">每条事项都可以单独设置提醒时间</p>
 
+                <div class="memo-tools">
+                    <button class="memo-tool" id="memo-notification" type="button">开启系统通知</button>
+                    <button class="memo-tool" id="memo-test-alarm" type="button">测试铃声</button>
+                </div>
+
                 <div class="memo-alert" id="memo-alert" role="alert">
                     <span id="memo-alert-text">备忘录提醒</span>
                     <button class="memo-alert-dismiss" id="memo-alert-dismiss" type="button">停止提醒</button>
@@ -988,6 +1016,12 @@
         const memoAlertDismiss =
             document.getElementById("memo-alert-dismiss");
 
+        const memoNotification =
+            document.getElementById("memo-notification");
+
+        const memoTestAlarm =
+            document.getElementById("memo-test-alarm");
+
         const memoStorageKey =
             "super-junior-83z-countdown-memo-list";
 
@@ -1001,7 +1035,7 @@
         let audioContext = null;
         let alarmTimer = null;
 
-        function unlockAudio() {
+        async function unlockAudio() {
 
             if (!audioContext) {
                 const AudioContextClass =
@@ -1013,15 +1047,15 @@
             }
 
             if (audioContext && audioContext.state === "suspended") {
-                audioContext.resume();
+                await audioContext.resume();
             }
         }
 
         document.addEventListener("pointerdown", unlockAudio, { once: true });
 
-        function playReminderSound() {
+        async function playReminderSound() {
 
-            unlockAudio();
+            await unlockAudio();
 
             if (!audioContext) {
                 return;
@@ -1217,6 +1251,44 @@
                 memoStatus.textContent = "页面内提醒已开启";
             }
         }
+
+        function updateNotificationButton() {
+
+            if (typeof Notification === "undefined") {
+                memoNotification.textContent = "浏览器不支持通知";
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                memoNotification.textContent = "系统通知已开启";
+            } else if (Notification.permission === "denied") {
+                memoNotification.textContent = "通知已被阻止";
+            }
+        }
+
+        memoNotification.addEventListener("click", async () => {
+            await requestNotificationPermission();
+            updateNotificationButton();
+
+            if (typeof Notification === "undefined") {
+                memoStatus.textContent = "当前浏览器不支持系统通知";
+            } else if (Notification.permission === "granted") {
+                memoStatus.textContent = "系统通知已开启";
+            } else if (Notification.permission === "denied") {
+                memoStatus.textContent = "请在浏览器网站设置中允许通知";
+            } else {
+                memoStatus.textContent = "请允许浏览器发送通知";
+            }
+        });
+
+        memoTestAlarm.addEventListener("click", async () => {
+            memoAlertText.textContent = "测试提醒：铃声正常";
+            memoAlert.classList.add("visible");
+            memoStatus.textContent = "正在测试提醒铃声";
+            await playReminderSound();
+        });
+
+        updateNotificationButton();
 
         memoReminderTime.addEventListener("change", () => {
             if (memoReminderTime.value) {
