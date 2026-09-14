@@ -360,6 +360,12 @@
             color: rgba(255, 255, 255, 0.72);
         }
 
+        .memo-hint {
+            margin: -5px 0 12px;
+            color: rgba(255, 255, 255, 0.42);
+            font-size: 10px;
+        }
+
         .memo-status {
             font-size: 10px;
             color: rgba(255, 255, 255, 0.42);
@@ -418,6 +424,10 @@
             gap: 8px;
             color: rgba(255, 255, 255, 0.55);
             font-size: 10px;
+        }
+
+        .memo-time-label {
+            color: rgba(255, 255, 255, 0.42);
         }
 
         .memo-reminder-toggle,
@@ -510,6 +520,10 @@
             padding-left: 27px;
             color: rgba(255, 255, 255, 0.45);
             font-size: 10px;
+        }
+
+        .memo-reminder-label {
+            color: rgba(255, 255, 255, 0.62);
         }
 
         .memo-actions {
@@ -760,7 +774,7 @@
                 <div class="info-item">
                     <span class="info-title">LOCATION</span>
                     <span class="info-content">
-                        澳门
+                        澳门新濠影汇综艺馆
                     </span>
                 </div>
 
@@ -781,9 +795,11 @@
             <!-- 个人备忘录 -->
             <section class="memo" aria-labelledby="memo-title">
                 <div class="memo-header">
-                    <span class="memo-title" id="memo-title">MY MEMO</span>
+                    <span class="memo-title" id="memo-title">个人备忘录</span>
                     <span class="memo-status" id="memo-status" aria-live="polite">自动保存</span>
                 </div>
+
+                <p class="memo-hint">每条事项都可以单独设置提醒时间</p>
 
                 <form class="memo-form" id="memo-form">
                     <input
@@ -801,8 +817,9 @@
                                 id="memo-reminder-toggle"
                                 type="checkbox"
                             >
-                            添加提醒
+                            需要提醒
                         </label>
+                        <span class="memo-time-label">提醒时间</span>
                         <input
                             class="memo-time"
                             id="memo-reminder-time"
@@ -1015,6 +1032,7 @@
                 reminderToggle.setAttribute("aria-label", `提醒：${item.text}`);
 
                 const reminderLabel = document.createElement("span");
+                reminderLabel.className = "memo-reminder-label";
                 reminderLabel.textContent = "提醒我";
 
                 const reminderTime = document.createElement("input");
@@ -1039,7 +1057,10 @@
 
                 reminderTime.addEventListener("change", async () => {
                     item.remindAt = reminderTime.value;
-                    item.remind = Boolean(reminderTime.value && reminderToggle.checked);
+                    if (reminderTime.value) {
+                        reminderToggle.checked = true;
+                    }
+                    item.remind = Boolean(reminderTime.value);
                     item.notified = false;
                     await requestNotificationPermission();
                     saveMemo();
@@ -1086,6 +1107,12 @@
                 memoStatus.textContent = "页面内提醒已开启";
             }
         }
+
+        memoReminderTime.addEventListener("change", () => {
+            if (memoReminderTime.value) {
+                memoReminderToggle.checked = true;
+            }
+        });
 
         function checkReminders() {
 
