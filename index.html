@@ -366,6 +366,36 @@
             font-size: 10px;
         }
 
+        .memo-alert {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 180, 90, 0.55);
+            border-radius: 9px;
+            color: #ffe1ad;
+            background: rgba(137, 73, 18, 0.35);
+            font-size: 11px;
+        }
+
+        .memo-alert.visible {
+            display: flex;
+        }
+
+        .memo-alert-dismiss {
+            flex: 0 0 auto;
+            padding: 4px 8px;
+            border: 1px solid rgba(255, 220, 170, 0.45);
+            border-radius: 6px;
+            color: #ffe1ad;
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            font-size: 10px;
+        }
+
         .memo-status {
             font-size: 10px;
             color: rgba(255, 255, 255, 0.42);
@@ -801,6 +831,11 @@
 
                 <p class="memo-hint">每条事项都可以单独设置提醒时间</p>
 
+                <div class="memo-alert" id="memo-alert" role="alert">
+                    <span id="memo-alert-text">备忘录提醒</span>
+                    <button class="memo-alert-dismiss" id="memo-alert-dismiss" type="button">停止提醒</button>
+                </div>
+
                 <form class="memo-form" id="memo-form">
                     <input
                         class="memo-input"
@@ -944,6 +979,15 @@
         const memoClear =
             document.getElementById("memo-clear");
 
+        const memoAlert =
+            document.getElementById("memo-alert");
+
+        const memoAlertText =
+            document.getElementById("memo-alert-text");
+
+        const memoAlertDismiss =
+            document.getElementById("memo-alert-dismiss");
+
         const memoStorageKey =
             "super-junior-83z-countdown-memo-list";
 
@@ -952,6 +996,72 @@
 
         function pad(number) {
             return String(number).padStart(2, "0");
+        }
+
+        let audioContext = null;
+        let alarmTimer = null;
+
+        function unlockAudio() {
+
+            if (!audioContext) {
+                const AudioContextClass =
+                    window.AudioContext || window.webkitAudioContext;
+
+                if (AudioContextClass) {
+                    audioContext = new AudioContextClass();
+                }
+            }
+
+            if (audioContext && audioContext.state === "suspended") {
+                audioContext.resume();
+            }
+        }
+
+        document.addEventListener("pointerdown", unlockAudio, { once: true });
+
+        function playReminderSound() {
+
+            unlockAudio();
+
+            if (!audioContext) {
+                return;
+            }
+
+            clearInterval(alarmTimer);
+
+            let beepCount = 0;
+
+            alarmTimer = setInterval(() => {
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                oscillator.frequency.value = beepCount % 2 ? 660 : 880;
+                gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(
+                    0.18,
+                    audioContext.currentTime + 0.02
+                );
+                gain.gain.exponentialRampToValueAtTime(
+                    0.0001,
+                    audioContext.currentTime + 0.28
+                );
+
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+
+                beepCount += 1;
+
+                if (beepCount >= 6) {
+                    clearInterval(alarmTimer);
+                }
+            }, 360);
+        }
+
+        function stopReminderSound() {
+            clearInterval(alarmTimer);
+            memoAlert.classList.remove("visible");
         }
 
 
@@ -1132,8 +1242,16 @@
                     item.notified = true;
                     reminderTriggered = true;
 
+                    memoAlertText.textContent = `提醒：${item.text}`;
+                    memoAlert.classList.add("visible");
+                    playReminderSound();
+
                     if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-                        new Notification("备忘录提醒", { body: item.text });
+                        try {
+                            new Notification("备忘录提醒", { body: item.text });
+                        } catch (error) {
+                            memoStatus.textContent = "页面内提醒已开启";
+                        }
                     }
                 }
             });
@@ -1185,9 +1303,11 @@
             memoInput.focus();
         });
 
+        memoAlertDismiss.addEventListener("click", stopReminderSound);
+
         renderMemo();
         checkReminders();
-        setInterval(checkReminders, 10000);
+        setInterval(checkReminders, 1000);
 
 
         function updateCountdown() {
