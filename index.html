@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#12051f">
+    <meta name="description" content="SUPER JUNIOR 83Z FANCON TOUR [1983] 澳门场倒计时">
+
+    <title>SUPER JUNIOR 83Z · 澳门场倒计时</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                "PingFang SC",
+                "Hiragino Sans GB",
+                "Microsoft YaHei",
+                sans-serif;
+
+            color: #ffffff;
+
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    rgba(157, 78, 221, 0.35),
+                    transparent 35%
+                ),
+                radial-gradient(
+                    circle at 80% 80%,
+                    rgba(91, 33, 182, 0.3),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    #08020f 0%,
+                    #160622 45%,
+                    #0c0316 100%
+                );
+        }
+
+        /* =========================
+           星空
+        ========================= */
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+
+            animation-name: twinkle;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes twinkle {
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        /* =========================
+           背景光晕
+        ========================= */
+
+        .glow {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow.one {
+            top: -180px;
+            left: -120px;
+            background: #b56cff;
+        }
+
+        .glow.two {
+            right: -180px;
+            bottom: -180px;
+            background: #6d28d9;
+        }
+
+        /* =========================
+           主容器
+        ========================= */
+
+        .page {
+            position: relative;
+            z-index: 2;
+
+            width: 100%;
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+        }
+
+        .card {
+            position: relative;
+
+            width: min(900px, 100%);
+
+            padding: 58px 55px 45px;
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+
+            background: rgba(255, 255, 255, 0.07);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        /* =========================
+           顶部
+        ========================= */
+
+        .brand {
+            text-align: center;
+            margin-bottom: 8px;
+
+            font-size: clamp(30px, 6vw, 56px);
+            font-weight: 800;
+            letter-spacing: 0.12em;
+
+            text-shadow:
+                0 0 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .subtitle {
+            text-align: center;
+
+            font-size: 14px;
+            letter-spacing: 0.32em;
+
+            color: rgba(255, 255, 255, 0.62);
+
+            margin-bottom: 28px;
+        }
+
+        .macau {
+            text-align: center;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            letter-spacing: 0.45em;
+
+            color: rgba(255, 255, 255, 0.82);
+
+            margin-bottom: 42px;
+        }
+
+        .macau span {
+            display: inline-block;
+            margin-left: 0.45em;
+        }
+
+        /* =========================
+           倒计时
+        ========================= */
+
+        .countdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 42px;
+        }
+
+        .time-box {
+            position: relative;
+
+            padding: 24px 12px 20px;
+
+            border-radius: 20px;
+
+            background: rgba(255, 255, 255, 0.06);
+
+            border: 1px solid rgba(255, 255, 255, 0.09);
+
+            text-align: center;
+
+            overflow: hidden;
+        }
+
+        .time-box::before {
+            content: "";
+
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+
+            height: 1px;
+
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .number {
+            display: block;
+
+            font-size: clamp(36px, 6vw, 64px);
+
+            font-weight: 700;
+
+            line-height: 1;
+
+            letter-spacing: 0.04em;
+
+            font-variant-numeric: tabular-nums;
+
+            text-shadow:
+                0 0 25px rgba(255, 255, 255, 0.12);
+        }
+
+        .label {
+            display: block;
+
+            margin-top: 12px;
+
+            font-size: 11px;
+
+            letter-spacing: 0.28em;
+
+            color: rgba(255, 255, 255, 0.48);
+        }
+
+        /* =========================
+           信息
+        ========================= */
+
+        .info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            text-align: center;
+
+            padding: 15px 10px;
+
+            border-radius: 14px;
+
+            background: rgba(255, 255, 255, 0.035);
+
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-title {
+            display: block;
+
+            font-size: 10px;
+
+            letter-spacing: 0.2em;
+
+            color: rgba(255, 255, 255, 0.4);
+
+            margin-bottom: 7px;
+        }
+
+        .info-content {
+            display: block;
+
+            font-size: 13px;
+
+            color: rgba(255, 255, 255, 0.85);
+
+            line-height: 1.5;
+        }
+
+        /* =========================
+           底部文字
+        ========================= */
+
+        .message {
+            text-align: center;
+
+            font-size: 14px;
+
+            letter-spacing: 0.12em;
+
+            color: rgba(255, 255, 255, 0.62);
+
+            transition: all 0.3s ease;
+        }
+
+        .message.active {
+            color: #ffffff;
+
+            font-size: 18px;
+
+            font-weight: 600;
+
+            text-shadow:
+                0 0 20px rgba(255, 255, 255, 0.35);
+        }
+
+        .footer {
+            text-align: center;
+
+            margin-top: 30px;
+
+            font-size: 10px;
+
+            letter-spacing: 0.2em;
+
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* =========================
+           手机端
+        ========================= */
+
+        @media (max-width: 650px) {
+
+            body {
+                overflow: auto;
+            }
+
+            .page {
+                min-height: 100vh;
+                padding: 18px;
+            }
+
+            .card {
+                padding: 42px 18px 32px;
+
+                border-radius: 24px;
+            }
+
+            .brand {
+                font-size: 31px;
+                letter-spacing: 0.08em;
+            }
+
+            .subtitle {
+                font-size: 10px;
+                letter-spacing: 0.2em;
+                margin-bottom: 22px;
+            }
+
+            .macau {
+                font-size: 12px;
+                letter-spacing: 0.3em;
+                margin-bottom: 30px;
+            }
+
+            .countdown {
+                gap: 8px;
+                margin-bottom: 28px;
+            }
+
+            .time-box {
+                padding: 18px 4px 15px;
+                border-radius: 14px;
+            }
+
+            .number {
+                font-size: clamp(27px, 9vw, 42px);
+            }
+
+            .label {
+                margin-top: 9px;
+                font-size: 8px;
+                letter-spacing: 0.15em;
+            }
+
+            .info {
+                gap: 7px;
+            }
+
+            .info-item {
+                padding: 12px 5px;
+                border-radius: 11px;
+            }
+
+            .info-title {
+                font-size: 8px;
+                margin-bottom: 5px;
+            }
+
+            .info-content {
+                font-size: 10px;
+            }
+
+            .message {
+                font-size: 12px;
+            }
+
+            .footer {
+                margin-top: 24px;
+                font-size: 8px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .card {
+                padding-left: 13px;
+                padding-right: 13px;
+            }
+
+            .number {
+                font-size: 25px;
+            }
+
+            .label {
+                font-size: 7px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 星空 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 背景光晕 -->
+    <div class="glow one"></div>
+    <div class="glow two"></div>
+
+    <main class="page">
+
+        <section class="card">
+
+            <!-- 标题 -->
+            <div class="brand">
+                SUPER JUNIOR
+            </div>
+
+            <div class="subtitle">
+                2026 FANCON TOUR [1983]
+            </div>
+
+            <div class="macau">
+                MACAU <span>·</span> 澳门
+            </div>
+
+            <!-- 倒计时 -->
+            <div class="countdown">
+
+                <div class="time-box">
+                    <span class="number" id="days">00</span>
+                    <span class="label">DAYS</span>
+                </div>
+
+                <div class="time-box">
+                    <span class="number" id="hours">00</span>
+                    <span class="label">HOURS</span>
+                </div>
+
+                <div class="time-box">
+                    <span class="number" id="minutes">00</span>
+                    <span class="label">MINUTES</span>
+                </div>
+
+                <div class="time-box">
+                    <span class="number" id="seconds">00</span>
+                    <span class="label">SECONDS</span>
+                </div>
+
+            </div>
+
+            <!-- 演出信息 -->
+            <div class="info">
+
+                <div class="info-item">
+                    <span class="info-title">DATE</span>
+                    <span class="info-content">
+                        2026年9月19日
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-title">LOCATION</span>
+                    <span class="info-content">
+                        澳门
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-title">83Z</span>
+                    <span class="info-content">
+                        Leeteuk & Heechul
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- 提示 -->
+            <div class="message" id="message">
+                期待与你相见 ✦
+            </div>
+
+            <div class="footer">
+                ALWAYS TOGETHER · 83Z
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        /* =====================================================
+           澳门场目标时间
+
+           当前使用：
+           2026年9月19日 00:00（澳门时间）
+
+           如果之后确认官方开场时间，例如 19:30，
+           只需要修改下面这一行：
+
+           "2026-09-19T19:30:00+08:00"
+        ===================================================== */
+
+        const concertDate =
+            new Date("2026-09-19T00:00:00+08:00").getTime();
+
+
+        /* =====================================================
+           星空生成
+        ===================================================== */
+
+        const starsContainer =
+            document.getElementById("stars");
+
+        const starCount = 100;
+
+        for (let i = 0; i < starCount; i++) {
+
+            const star = document.createElement("div");
+
+            star.className = "star";
+
+            const size =
+                Math.random() < 0.85
+                    ? Math.random() * 1.5 + 0.5
+                    : Math.random() * 2.5 + 1;
+
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+
+            star.style.left =
+                `${Math.random() * 100}%`;
+
+            star.style.top =
+                `${Math.random() * 100}%`;
+
+            star.style.opacity =
+                `${Math.random() * 0.7 + 0.2}`;
+
+            star.style.animationDuration =
+                `${Math.random() * 3 + 2}s`;
+
+            star.style.animationDelay =
+                `${Math.random() * 4}s`;
+
+            starsContainer.appendChild(star);
+        }
+
+
+        /* =====================================================
+           倒计时
+        ===================================================== */
+
+        const daysElement =
+            document.getElementById("days");
+
+        const hoursElement =
+            document.getElementById("hours");
+
+        const minutesElement =
+            document.getElementById("minutes");
+
+        const secondsElement =
+            document.getElementById("seconds");
+
+        const messageElement =
+            document.getElementById("message");
+
+
+        function pad(number) {
+            return String(number).padStart(2, "0");
+        }
+
+
+        function updateCountdown() {
+
+            const now = Date.now();
+
+            const distance =
+                concertDate - now;
+
+
+            /* 到达目标时间 */
+
+            if (distance <= 0) {
+
+                daysElement.textContent = "00";
+                hoursElement.textContent = "00";
+                minutesElement.textContent = "00";
+                secondsElement.textContent = "00";
+
+                messageElement.textContent =
+                    "澳门场已经到来 ✦";
+
+                messageElement.classList.add("active");
+
+                return;
+            }
+
+
+            /* 时间计算 */
+
+            const days =
+                Math.floor(
+                    distance / (1000 * 60 * 60 * 24)
+                );
+
+            const hours =
+                Math.floor(
+                    (distance % (1000 * 60 * 60 * 24))
+                    / (1000 * 60 * 60)
+                );
+
+            const minutes =
+                Math.floor(
+                    (distance % (1000 * 60 * 60))
+                    / (1000 * 60)
+                );
+
+            const seconds =
+                Math.floor(
+                    (distance % (1000 * 60))
+                    / 1000
+                );
+
+
+            /* 更新页面 */
+
+            daysElement.textContent =
+                String(days).padStart(2, "0");
+
+            hoursElement.textContent =
+                pad(hours);
+
+            minutesElement.textContent =
+                pad(minutes);
+
+            secondsElement.textContent =
+                pad(seconds);
+        }
+
+
+        /* 立即执行一次 */
+
+        updateCountdown();
+
+
+        /* 每秒更新 */
+
+        setInterval(updateCountdown, 1000);
+
+    </script>
+
+</body>
+</html>
