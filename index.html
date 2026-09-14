@@ -338,7 +338,7 @@
         ========================= */
 
         .memo {
-            margin-bottom: 30px;
+            margin-top: 30px;
             padding: 18px;
             border: 1px solid rgba(255, 255, 255, 0.09);
             border-radius: 16px;
@@ -364,12 +364,16 @@
             color: rgba(255, 255, 255, 0.42);
         }
 
+        .memo-form {
+            display: flex;
+            gap: 8px;
+        }
+
         .memo-input {
-            display: block;
+            min-width: 0;
+            flex: 1;
             width: 100%;
-            min-height: 92px;
-            resize: vertical;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             outline: none;
@@ -377,7 +381,6 @@
             background: rgba(0, 0, 0, 0.14);
             font: inherit;
             font-size: 13px;
-            line-height: 1.6;
         }
 
         .memo-input::placeholder {
@@ -389,6 +392,84 @@
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
         }
 
+        .memo-add,
+        .memo-clear {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 7px;
+            color: rgba(255, 255, 255, 0.76);
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            font: inherit;
+            font-size: 10px;
+        }
+
+        .memo-add {
+            flex: 0 0 auto;
+            padding: 0 13px;
+        }
+
+        .memo-add:hover,
+        .memo-clear:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .memo-list {
+            display: grid;
+            gap: 7px;
+            margin: 12px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .memo-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 38px;
+            padding: 7px 9px;
+            border-radius: 9px;
+            background: rgba(0, 0, 0, 0.13);
+        }
+
+        .memo-check {
+            width: 17px;
+            height: 17px;
+            flex: 0 0 auto;
+            accent-color: #b56cff;
+            cursor: pointer;
+        }
+
+        .memo-text {
+            flex: 1;
+            min-width: 0;
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .memo-item.completed .memo-text {
+            color: rgba(255, 255, 255, 0.38);
+            text-decoration: line-through;
+        }
+
+        .memo-delete {
+            flex: 0 0 auto;
+            padding: 3px 6px;
+            border: 0;
+            color: rgba(255, 255, 255, 0.38);
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .memo-delete:hover {
+            color: #ffffff;
+        }
+
         .memo-actions {
             display: flex;
             justify-content: flex-end;
@@ -397,18 +478,8 @@
 
         .memo-clear {
             padding: 6px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 7px;
             color: rgba(255, 255, 255, 0.62);
             background: transparent;
-            cursor: pointer;
-            font: inherit;
-            font-size: 10px;
-        }
-
-        .memo-clear:hover {
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.35);
         }
 
         /* =========================
@@ -534,7 +605,15 @@
 
             .memo {
                 padding: 14px;
-                margin-bottom: 24px;
+                margin-top: 24px;
+            }
+
+            .memo-form {
+                gap: 6px;
+            }
+
+            .memo-add {
+                padding: 0 10px;
             }
 
             .message {
@@ -597,26 +676,6 @@
                 MACAU <span>·</span> 澳门
             </div>
 
-            <!-- 个人备忘录 -->
-            <section class="memo" aria-labelledby="memo-title">
-                <div class="memo-header">
-                    <span class="memo-title" id="memo-title">MY MEMO</span>
-                    <span class="memo-status" id="memo-status" aria-live="polite">自动保存</span>
-                </div>
-
-                <textarea
-                    class="memo-input"
-                    id="memo-input"
-                    maxlength="1000"
-                    placeholder="写下想记住的事情……"
-                    aria-label="个人备忘录"
-                ></textarea>
-
-                <div class="memo-actions">
-                    <button class="memo-clear" id="memo-clear" type="button">清空</button>
-                </div>
-            </section>
-
             <!-- 倒计时 -->
             <div class="countdown">
 
@@ -672,6 +731,31 @@
             <div class="message" id="message">
                 期待与你相见 ✦
             </div>
+
+            <!-- 个人备忘录 -->
+            <section class="memo" aria-labelledby="memo-title">
+                <div class="memo-header">
+                    <span class="memo-title" id="memo-title">MY MEMO</span>
+                    <span class="memo-status" id="memo-status" aria-live="polite">自动保存</span>
+                </div>
+
+                <form class="memo-form" id="memo-form">
+                    <input
+                        class="memo-input"
+                        id="memo-input"
+                        maxlength="160"
+                        placeholder="添加一件要记住的事……"
+                        aria-label="新增备忘录项目"
+                    >
+                    <button class="memo-add" type="submit">添加</button>
+                </form>
+
+                <ul class="memo-list" id="memo-list" aria-live="polite"></ul>
+
+                <div class="memo-actions">
+                    <button class="memo-clear" id="memo-clear" type="button">清空全部</button>
+                </div>
+            </section>
 
             <div class="footer">
                 ALWAYS TOGETHER · 83Z
@@ -760,8 +844,14 @@
         const messageElement =
             document.getElementById("message");
 
+        const memoForm =
+            document.getElementById("memo-form");
+
         const memoInput =
             document.getElementById("memo-input");
+
+        const memoList =
+            document.getElementById("memo-list");
 
         const memoStatus =
             document.getElementById("memo-status");
@@ -770,7 +860,9 @@
             document.getElementById("memo-clear");
 
         const memoStorageKey =
-            "super-junior-83z-countdown-memo";
+            "super-junior-83z-countdown-memo-list";
+
+        let memoItems = [];
 
 
         function pad(number) {
@@ -781,7 +873,10 @@
         function saveMemo() {
 
             try {
-                localStorage.setItem(memoStorageKey, memoInput.value);
+                localStorage.setItem(
+                    memoStorageKey,
+                    JSON.stringify(memoItems)
+                );
                 memoStatus.textContent = "已自动保存";
             } catch (error) {
                 memoStatus.textContent = "仅保留在本次开启";
@@ -790,19 +885,104 @@
 
 
         try {
-            memoInput.value =
-                localStorage.getItem(memoStorageKey) || "";
+            const savedItems =
+                localStorage.getItem(memoStorageKey);
+
+            if (savedItems) {
+                memoItems = JSON.parse(savedItems);
+            } else {
+                const oldMemo =
+                    localStorage.getItem("super-junior-83z-countdown-memo");
+
+                if (oldMemo && oldMemo.trim()) {
+                    memoItems = [{
+                        id: Date.now(),
+                        text: oldMemo.trim(),
+                        completed: false
+                    }];
+                }
+            }
         } catch (error) {
             memoStatus.textContent = "仅保留在本次开启";
         }
 
-        memoInput.addEventListener("input", saveMemo);
+        function renderMemo() {
 
-        memoClear.addEventListener("click", () => {
+            memoList.textContent = "";
+
+            memoItems.forEach((item) => {
+                const listItem = document.createElement("li");
+                listItem.className = "memo-item";
+
+                if (item.completed) {
+                    listItem.classList.add("completed");
+                }
+
+                const checkbox = document.createElement("input");
+                checkbox.className = "memo-check";
+                checkbox.type = "checkbox";
+                checkbox.checked = item.completed;
+                checkbox.setAttribute("aria-label", `完成：${item.text}`);
+
+                checkbox.addEventListener("change", () => {
+                    item.completed = checkbox.checked;
+                    renderMemo();
+                    saveMemo();
+                });
+
+                const text = document.createElement("span");
+                text.className = "memo-text";
+                text.textContent = item.text;
+
+                const deleteButton = document.createElement("button");
+                deleteButton.className = "memo-delete";
+                deleteButton.type = "button";
+                deleteButton.textContent = "×";
+                deleteButton.setAttribute("aria-label", `删除：${item.text}`);
+
+                deleteButton.addEventListener("click", () => {
+                    memoItems = memoItems.filter(
+                        (memoItem) => memoItem.id !== item.id
+                    );
+                    renderMemo();
+                    saveMemo();
+                });
+
+                listItem.append(checkbox, text, deleteButton);
+                memoList.appendChild(listItem);
+            });
+        }
+
+        memoForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const text = memoInput.value.trim();
+
+            if (!text) {
+                memoInput.focus();
+                return;
+            }
+
+            memoItems.push({
+                id: Date.now(),
+                text,
+                completed: false
+            });
+
             memoInput.value = "";
+            renderMemo();
             saveMemo();
             memoInput.focus();
         });
+
+        memoClear.addEventListener("click", () => {
+            memoItems = [];
+            renderMemo();
+            saveMemo();
+            memoInput.focus();
+        });
+
+        renderMemo();
 
 
         function updateCountdown() {
