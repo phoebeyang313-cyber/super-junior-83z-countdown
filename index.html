@@ -360,65 +360,6 @@
             color: rgba(255, 255, 255, 0.72);
         }
 
-        .memo-hint {
-            margin: -5px 0 12px;
-            color: rgba(255, 255, 255, 0.42);
-            font-size: 10px;
-        }
-
-        .memo-tools {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            margin: -3px 0 12px;
-        }
-
-        .memo-tool {
-            padding: 6px 9px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 7px;
-            color: rgba(255, 255, 255, 0.65);
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-            font-size: 10px;
-        }
-
-        .memo-tool:hover {
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.35);
-        }
-
-        .memo-alert {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 12px;
-            padding: 10px 12px;
-            border: 1px solid rgba(255, 180, 90, 0.55);
-            border-radius: 9px;
-            color: #ffe1ad;
-            background: rgba(137, 73, 18, 0.35);
-            font-size: 11px;
-        }
-
-        .memo-alert.visible {
-            display: flex;
-        }
-
-        .memo-alert-dismiss {
-            flex: 0 0 auto;
-            padding: 4px 8px;
-            border: 1px solid rgba(255, 220, 170, 0.45);
-            border-radius: 6px;
-            color: #ffe1ad;
-            background: transparent;
-            cursor: pointer;
-            font: inherit;
-            font-size: 10px;
-        }
-
         .memo-status {
             font-size: 10px;
             color: rgba(255, 255, 255, 0.42);
@@ -469,35 +410,9 @@
             padding: 0 13px;
         }
 
-        .memo-options {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            grid-column: 1 / -1;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 10px;
-        }
-
-        .memo-time-label {
-            color: rgba(255, 255, 255, 0.42);
-        }
-
-        .memo-reminder-toggle,
         .memo-check {
             accent-color: #b56cff;
             cursor: pointer;
-        }
-
-        .memo-time {
-            min-width: 170px;
-            padding: 5px 7px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            color: rgba(255, 255, 255, 0.72);
-            background: rgba(0, 0, 0, 0.14);
-            font: inherit;
-            font-size: 10px;
         }
 
         .memo-add:hover,
@@ -563,20 +478,6 @@
 
         .memo-delete:hover {
             color: #ffffff;
-        }
-
-        .memo-item-reminder {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 7px;
-            padding-left: 27px;
-            color: rgba(255, 255, 255, 0.45);
-            font-size: 10px;
-        }
-
-        .memo-reminder-label {
-            color: rgba(255, 255, 255, 0.62);
         }
 
         .memo-actions {
@@ -852,17 +753,6 @@
                     <span class="memo-status" id="memo-status" aria-live="polite">自动保存</span>
                 </div>
 
-                <p class="memo-hint">每条事项都可以单独设置提醒时间</p>
-
-                <div class="memo-tools">
-                    <button class="memo-tool" id="memo-notification" type="button">开启系统通知</button>
-                </div>
-
-                <div class="memo-alert" id="memo-alert" role="alert">
-                    <span id="memo-alert-text">备忘录提醒</span>
-                    <button class="memo-alert-dismiss" id="memo-alert-dismiss" type="button">停止提醒</button>
-                </div>
-
                 <form class="memo-form" id="memo-form">
                     <input
                         class="memo-input"
@@ -872,23 +762,6 @@
                         aria-label="新增备忘录项目"
                     >
                     <button class="memo-add" type="submit">添加</button>
-                    <div class="memo-options">
-                        <label>
-                            <input
-                                class="memo-reminder-toggle"
-                                id="memo-reminder-toggle"
-                                type="checkbox"
-                            >
-                            需要提醒
-                        </label>
-                        <span class="memo-time-label">提醒时间</span>
-                        <input
-                            class="memo-time"
-                            id="memo-reminder-time"
-                            type="datetime-local"
-                            aria-label="新增事项提醒时间"
-                        >
-                    </div>
                 </form>
 
                 <ul class="memo-list" id="memo-list" aria-live="polite"></ul>
@@ -991,12 +864,6 @@
         const memoInput =
             document.getElementById("memo-input");
 
-        const memoReminderToggle =
-            document.getElementById("memo-reminder-toggle");
-
-        const memoReminderTime =
-            document.getElementById("memo-reminder-time");
-
         const memoList =
             document.getElementById("memo-list");
 
@@ -1005,18 +872,6 @@
 
         const memoClear =
             document.getElementById("memo-clear");
-
-        const memoAlert =
-            document.getElementById("memo-alert");
-
-        const memoAlertText =
-            document.getElementById("memo-alert-text");
-
-        const memoAlertDismiss =
-            document.getElementById("memo-alert-dismiss");
-
-        const memoNotification =
-            document.getElementById("memo-notification");
 
         const memoStorageKey =
             "super-junior-83z-countdown-memo-list";
@@ -1027,73 +882,6 @@
         function pad(number) {
             return String(number).padStart(2, "0");
         }
-
-        let audioContext = null;
-        let alarmTimer = null;
-
-        async function unlockAudio() {
-
-            if (!audioContext) {
-                const AudioContextClass =
-                    window.AudioContext || window.webkitAudioContext;
-
-                if (AudioContextClass) {
-                    audioContext = new AudioContextClass();
-                }
-            }
-
-            if (audioContext && audioContext.state === "suspended") {
-                await audioContext.resume();
-            }
-        }
-
-        document.addEventListener("pointerdown", unlockAudio, { once: true });
-
-        async function playReminderSound() {
-
-            await unlockAudio();
-
-            if (!audioContext) {
-                return;
-            }
-
-            clearInterval(alarmTimer);
-
-            let beepCount = 0;
-
-            alarmTimer = setInterval(() => {
-                const oscillator = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-
-                oscillator.frequency.value = beepCount % 2 ? 660 : 880;
-                gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-                gain.gain.exponentialRampToValueAtTime(
-                    0.18,
-                    audioContext.currentTime + 0.02
-                );
-                gain.gain.exponentialRampToValueAtTime(
-                    0.0001,
-                    audioContext.currentTime + 0.28
-                );
-
-                oscillator.connect(gain);
-                gain.connect(audioContext.destination);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.3);
-
-                beepCount += 1;
-
-                if (beepCount >= 6) {
-                    clearInterval(alarmTimer);
-                }
-            }, 360);
-        }
-
-        function stopReminderSound() {
-            clearInterval(alarmTimer);
-            memoAlert.classList.remove("visible");
-        }
-
 
         function saveMemo() {
 
@@ -1115,7 +903,13 @@
 
             if (savedItems) {
                 const parsedItems = JSON.parse(savedItems);
-                memoItems = Array.isArray(parsedItems) ? parsedItems : [];
+                memoItems = Array.isArray(parsedItems)
+                    ? parsedItems.map((item) => ({
+                        id: item.id,
+                        text: item.text,
+                        completed: Boolean(item.completed)
+                    }))
+                    : [];
             } else {
                 const oldMemo =
                     localStorage.getItem("super-junior-83z-countdown-memo");
@@ -1124,9 +918,7 @@
                     memoItems = [{
                         id: Date.now(),
                         text: oldMemo.trim(),
-                        completed: false,
-                        remind: false,
-                        remindAt: ""
+                        completed: false
                     }];
                 }
             }
@@ -1162,56 +954,6 @@
                 text.className = "memo-text";
                 text.textContent = item.text;
 
-                const reminderControls = document.createElement("div");
-                reminderControls.className = "memo-item-reminder";
-
-                const reminderToggle = document.createElement("input");
-                reminderToggle.className = "memo-reminder-toggle";
-                reminderToggle.type = "checkbox";
-                reminderToggle.checked = Boolean(item.remind && item.remindAt);
-                reminderToggle.setAttribute("aria-label", `提醒：${item.text}`);
-
-                const reminderLabel = document.createElement("span");
-                reminderLabel.className = "memo-reminder-label";
-                reminderLabel.textContent = "提醒我";
-
-                const reminderTime = document.createElement("input");
-                reminderTime.className = "memo-time";
-                reminderTime.type = "datetime-local";
-                reminderTime.value = item.remindAt || "";
-                reminderTime.setAttribute("aria-label", `提醒时间：${item.text}`);
-
-                reminderToggle.addEventListener("change", async () => {
-                    if (reminderToggle.checked && !reminderTime.value) {
-                        reminderToggle.checked = false;
-                        memoStatus.textContent = "请先选择提醒时间";
-                        reminderTime.focus();
-                        return;
-                    }
-
-                    item.remind = reminderToggle.checked;
-                    item.notified = false;
-                    await requestNotificationPermission();
-                    saveMemo();
-                });
-
-                reminderTime.addEventListener("change", async () => {
-                    item.remindAt = reminderTime.value;
-                    if (reminderTime.value) {
-                        reminderToggle.checked = true;
-                    }
-                    item.remind = Boolean(reminderTime.value);
-                    item.notified = false;
-                    await requestNotificationPermission();
-                    saveMemo();
-                });
-
-                reminderControls.append(
-                    reminderToggle,
-                    reminderLabel,
-                    reminderTime
-                );
-
                 const deleteButton = document.createElement("button");
                 deleteButton.className = "memo-delete";
                 deleteButton.type = "button";
@@ -1230,99 +972,12 @@
                 itemMain.className = "memo-item-main";
                 itemMain.append(checkbox, text, deleteButton);
 
-                listItem.append(itemMain, reminderControls);
+                listItem.append(itemMain);
                 memoList.appendChild(listItem);
             });
         }
 
-        async function requestNotificationPermission() {
-
-            if (typeof Notification === "undefined" || Notification.permission !== "default") {
-                return;
-            }
-
-            try {
-                await Notification.requestPermission();
-            } catch (error) {
-                memoStatus.textContent = "页面内提醒已开启";
-            }
-        }
-
-        function updateNotificationButton() {
-
-            if (typeof Notification === "undefined") {
-                return;
-            }
-
-            if (Notification.permission === "granted") {
-                memoNotification.textContent = "系统通知已开启";
-            } else if (Notification.permission === "denied") {
-                memoNotification.textContent = "通知已被阻止";
-            }
-        }
-
-        memoNotification.addEventListener("click", async () => {
-            await requestNotificationPermission();
-            updateNotificationButton();
-
-            if (typeof Notification === "undefined") {
-                memoStatus.textContent = "当前浏览器不支持系统通知";
-            } else if (Notification.permission === "granted") {
-                memoStatus.textContent = "系统通知已开启";
-            } else if (Notification.permission === "denied") {
-                memoStatus.textContent = "请在浏览器网站设置中允许通知";
-            } else {
-                memoStatus.textContent = "请允许浏览器发送通知";
-            }
-        });
-
-        updateNotificationButton();
-
-        memoReminderTime.addEventListener("change", () => {
-            if (memoReminderTime.value) {
-                memoReminderToggle.checked = true;
-            }
-        });
-
-        function checkReminders() {
-
-            const now = Date.now();
-            let reminderTriggered = false;
-
-            memoItems.forEach((item) => {
-                const reminderTime = new Date(item.remindAt).getTime();
-
-                if (
-                    item.remind &&
-                    !item.completed &&
-                    !item.notified &&
-                    item.remindAt &&
-                    reminderTime <= now
-                ) {
-                    item.notified = true;
-                    reminderTriggered = true;
-
-                    memoAlertText.textContent = `提醒：${item.text}`;
-                    memoAlert.classList.add("visible");
-                    playReminderSound();
-
-                    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-                        try {
-                            new Notification("备忘录提醒", { body: item.text });
-                        } catch (error) {
-                            memoStatus.textContent = "页面内提醒已开启";
-                        }
-                    }
-                }
-            });
-
-            if (reminderTriggered) {
-                memoStatus.textContent = "有一项备忘录需要注意";
-                saveMemo();
-            }
-        }
-
-        memoForm.addEventListener("submit", async (event) => {
+        memoForm.addEventListener("submit", (event) => {
             event.preventDefault();
 
             const text = memoInput.value.trim();
@@ -1332,27 +987,15 @@
                 return;
             }
 
-            if (memoReminderToggle.checked && !memoReminderTime.value) {
-                memoStatus.textContent = "请先选择提醒时间";
-                memoReminderTime.focus();
-                return;
-            }
-
             memoItems.push({
                 id: Date.now(),
                 text,
-                completed: false,
-                remind: memoReminderToggle.checked,
-                remindAt: memoReminderTime.value,
-                notified: false
+                completed: false
             });
 
             memoInput.value = "";
-            memoReminderToggle.checked = false;
-            memoReminderTime.value = "";
             renderMemo();
             saveMemo();
-            await requestNotificationPermission();
             memoInput.focus();
         });
 
@@ -1363,11 +1006,7 @@
             memoInput.focus();
         });
 
-        memoAlertDismiss.addEventListener("click", stopReminderSound);
-
         renderMemo();
-        checkReminders();
-        setInterval(checkReminders, 1000);
 
 
         function updateCountdown() {
