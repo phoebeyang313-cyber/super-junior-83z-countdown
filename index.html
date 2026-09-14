@@ -323,6 +323,84 @@
         }
 
         /* =========================
+           备忘录
+        ========================= */
+
+        .memo {
+            margin-bottom: 30px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        .memo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .memo-title {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .memo-status {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.42);
+        }
+
+        .memo-input {
+            display: block;
+            width: 100%;
+            min-height: 92px;
+            resize: vertical;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.14);
+            font: inherit;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .memo-input::placeholder {
+            color: rgba(255, 255, 255, 0.32);
+        }
+
+        .memo-input:focus {
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        .memo-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .memo-clear {
+            padding: 6px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 7px;
+            color: rgba(255, 255, 255, 0.62);
+            background: transparent;
+            cursor: pointer;
+            font: inherit;
+            font-size: 10px;
+        }
+
+        .memo-clear:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* =========================
            底部文字
         ========================= */
 
@@ -437,6 +515,11 @@
                 font-size: 10px;
             }
 
+            .memo {
+                padding: 14px;
+                margin-bottom: 24px;
+            }
+
             .message {
                 font-size: 12px;
             }
@@ -542,6 +625,26 @@
 
             </div>
 
+            <!-- 个人备忘录 -->
+            <section class="memo" aria-labelledby="memo-title">
+                <div class="memo-header">
+                    <span class="memo-title" id="memo-title">MY MEMO</span>
+                    <span class="memo-status" id="memo-status" aria-live="polite">自动保存</span>
+                </div>
+
+                <textarea
+                    class="memo-input"
+                    id="memo-input"
+                    maxlength="1000"
+                    placeholder="写下想记住的事情……"
+                    aria-label="个人备忘录"
+                ></textarea>
+
+                <div class="memo-actions">
+                    <button class="memo-clear" id="memo-clear" type="button">清空</button>
+                </div>
+            </section>
+
             <!-- 提示 -->
             <div class="message" id="message">
                 期待与你相见 ✦
@@ -634,10 +737,49 @@
         const messageElement =
             document.getElementById("message");
 
+        const memoInput =
+            document.getElementById("memo-input");
+
+        const memoStatus =
+            document.getElementById("memo-status");
+
+        const memoClear =
+            document.getElementById("memo-clear");
+
+        const memoStorageKey =
+            "super-junior-83z-countdown-memo";
+
 
         function pad(number) {
             return String(number).padStart(2, "0");
         }
+
+
+        function saveMemo() {
+
+            try {
+                localStorage.setItem(memoStorageKey, memoInput.value);
+                memoStatus.textContent = "已自动保存";
+            } catch (error) {
+                memoStatus.textContent = "仅保留在本次开启";
+            }
+        }
+
+
+        try {
+            memoInput.value =
+                localStorage.getItem(memoStorageKey) || "";
+        } catch (error) {
+            memoStatus.textContent = "仅保留在本次开启";
+        }
+
+        memoInput.addEventListener("input", saveMemo);
+
+        memoClear.addEventListener("click", () => {
+            memoInput.value = "";
+            saveMemo();
+            memoInput.focus();
+        });
 
 
         function updateCountdown() {
